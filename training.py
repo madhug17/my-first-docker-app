@@ -1,5 +1,8 @@
 import pandas as pd
 import joblib
+import mlflow
+import mlflow.sklearn
+
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -7,55 +10,98 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-# -------- 1. LOAD DATASET --------
-# sep=None with engine='python' tells pandas to guess if it's ; or ,
-try:
-    df = pd.read_csv("student-mat.csv", sep=None, engine='python')
-    print(f"✅ Loaded file. Columns found: {df.columns.tolist()[:5]}...")
-except Exception as e:
-    print(f"❌ Error loading file: {e}")
-    exit()
+# 🔥 Fix tracking path (Windows issue)
+mlflow.set_tracking_uri("file:./mlruns")
 
-# -------- 2. TARGET & FEATURES --------
-if "G3" not in df.columns:
-    print("❌ Critical Error: 'G3' column not found. Check your CSV file.")
-    exit()
+# 🔥 Set experiment
+mlflow.set_experiment("student-performance")
 
+# Load Data
+df = pd.read_csv("student-mat.csv", sep=None, engine='python')
+
+# Fix column names
+df = df.rename(columns={
+    'Medu': 'Mother_edu',
+    'Fedu': 'Father_edu',
+    'goout': 'Trip'
+})
+
+# Target
 df["pass"] = (df["G3"] >= 10).astype(int)
 
+# Features
 features = [
-    "G1", "G2", "absences", "failures", "studytime", 
-    "Medu", "Fedu", "goout", "health", "higher", "sex", "school"
+    "G1", "G2", "absences", "failures", "studytime",
+    "Mother_edu", "Father_edu", "Trip", "health",
+    "higher", "sex", "school"
 ]
+
 X = df[features]
 y = df["pass"]
 
-# -------- 3. PIPELINE --------
-cat_cols = X.select_dtypes(include="object").columns.tolist()
-num_cols = X.select_dtypes(exclude="object").columns.tolist()
+# Train-test split (reproducible)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
+# Columns
+cat_cols = ["higher", "sex", "school"]
+num_cols = [
+    "G1", "G2", "absences", "failures", "studytime",
+    "Mother_edu", "Father_edu", "Trip", "health"
+]
+
+# Preprocessing
 preprocessor = ColumnTransformer([
     ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols),
     ("num", StandardScaler(), num_cols)
 ])
 
+# 🔥 Hyperparameters (CHANGE THESE FOR EXPERIMENTS)
+n_estimators = 100
+max_depth = 4
+learning_rate = 0.1
+
+model = XGBClassifier(
+    n_estimators=n_estimators,
+    max_depth=max_depth,
+    learning_rate=learning_rate,
+    eval_metric='logloss'
+)
+
 pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('model', XGBClassifier(
-        n_estimators=300,
-        max_depth=6,
-        learning_rate=0.1,
-        random_state=42,
-        eval_metric='logloss'
-    ))
+    ('model', model)
 ])
 
-# -------- 4. TRAIN & SAVE --------
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-pipeline.fit(X_train, y_train)
+# 🔥 Start MLflow run
+with mlflow.start_run():
 
-y_pred = pipeline.predict(X_test)
-print(f"✅ Model Trained. Accuracy: {accuracy_score(y_test, y_pred):.2%}")
+    # Train
+    pipeline.fit(X_train, y_train)
 
-joblib.dump(pipeline, "model.joblib")
-print("✅ Saved as model.joblib")
+    # Predict
+    y_pred = pipeline.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+
+    # 🔥 Log parameters
+    mlflow.log_param("model", "XGBoost")
+    mlflow.log_param("n_estimators", n_estimators)
+    mlflow.log_param("max_depth", max_depth)
+    mlflow.log_param("learning_rate", learning_rate)
+    mlflow.log_param("features", len(features))
+
+    # 🔥 Log metric
+    mlflow.log_metric("accuracy", acc)
+
+    # 🔥 Log + Register model
+    mlflow.sklearn.log_model(
+        pipeline,
+        "model",
+        registered_model_name="student-performance-model"
+    )
+
+    # Optional local save
+    joblib.dump(pipeline, "model.joblib")
+
+    print(f"✅ Accuracy: {acc}")

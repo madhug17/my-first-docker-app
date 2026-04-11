@@ -1,0 +1,16 @@
+creation_timestamp: 1775747093027
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1775747093027
+model_id: m-373abeb763e54001bd4030ec48cfe9a6
+name: student-performance-model
+run_id: 195bf9f878e447169c8113e48afd3e56
+run_link: null
+source: models:/m-373abeb763e54001bd4030ec48cfe9a6
+status: READY
+status_message: null
+storage_location: file:///C:/Users/G Madhu Goud/OneDrive/Desktop/MLOPS/mlruns/206321877545599830/models/m-373abeb763e54001bd4030ec48cfe9a6/artifacts
+user_id: null
+version: 1
+workspace: default

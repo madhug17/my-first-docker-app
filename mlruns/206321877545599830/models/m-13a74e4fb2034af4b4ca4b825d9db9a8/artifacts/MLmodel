@@ -1,0 +1,23 @@
+artifact_path: file:///C:/Users/G Madhu Goud/OneDrive/Desktop/MLOPS/mlruns/206321877545599830/models/m-13a74e4fb2034af4b4ca4b825d9db9a8/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.4
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-13a74e4fb2034af4b4ca4b825d9db9a8
+model_size_bytes: 114778
+model_uuid: m-13a74e4fb2034af4b4ca4b825d9db9a8
+prompts: null
+run_id: a1804d0cf80744a49118343da2c0bb03
+utc_time_created: '2026-04-09 15:11:22.938524'

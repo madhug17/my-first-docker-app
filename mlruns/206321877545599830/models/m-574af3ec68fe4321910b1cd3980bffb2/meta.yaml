@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/G Madhu Goud/OneDrive/Desktop/MLOPS/mlruns/206321877545599830/models/m-574af3ec68fe4321910b1cd3980bffb2/artifacts
+creation_timestamp: 1775747796738
+experiment_id: '206321877545599830'
+last_updated_timestamp: 1775747801715
+model_id: m-574af3ec68fe4321910b1cd3980bffb2
+model_type: null
+name: model
+source_run_id: 7aff746d3e0a4501964b847b565679ec
+status: 2
+status_message: null
