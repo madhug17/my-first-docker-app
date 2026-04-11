@@ -1,11 +1,11 @@
 fastapi
 uvicorn
 pandas
-joblib==1.4.2
-xgboost==3.2.0
-pytest
+joblib
+xgboost
 scikit-learn
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 PyJWT
+pytest>=7.0
