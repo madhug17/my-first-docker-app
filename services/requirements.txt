@@ -1,11 +1,15 @@
 fastapi
 uvicorn
 pandas
+numpy
+mlflow
+prometheus-fastapi-instrumentator
 joblib
 xgboost
 scikit-learn
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
+httpx
 PyJWT
 pytest>=7.0
